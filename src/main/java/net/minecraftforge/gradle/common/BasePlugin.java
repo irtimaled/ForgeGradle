@@ -19,7 +19,42 @@
  */
 package net.minecraftforge.gradle.common;
 
-import static net.minecraftforge.gradle.common.Constants.*;
+import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+import com.google.gson.reflect.TypeToken;
+import groovy.lang.Closure;
+import net.minecraftforge.gradle.tasks.*;
+import net.minecraftforge.gradle.util.FileLogListenner;
+import net.minecraftforge.gradle.util.GradleConfigurationException;
+import net.minecraftforge.gradle.util.delayed.*;
+import net.minecraftforge.gradle.util.json.JsonFactory;
+import net.minecraftforge.gradle.util.json.fgversion.FGBuildStatus;
+import net.minecraftforge.gradle.util.json.fgversion.FGVersion;
+import net.minecraftforge.gradle.util.json.fgversion.FGVersionWrapper;
+import net.minecraftforge.gradle.util.json.version.ManifestVersion;
+import net.minecraftforge.gradle.util.json.version.Version;
+import org.gradle.api.*;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Configuration.State;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository;
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.Delete;
+import org.gradle.testfixtures.ProjectBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,62 +67,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraftforge.gradle.util.json.version.ManifestVersion;
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.Configuration.State;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository;
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
-import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.Delete;
-import org.gradle.testfixtures.ProjectBuilder;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
-import com.google.gson.reflect.TypeToken;
-
-import groovy.lang.Closure;
-import net.minecraftforge.gradle.tasks.CrowdinDownload;
-import net.minecraftforge.gradle.tasks.Download;
-import net.minecraftforge.gradle.tasks.DownloadAssetsTask;
-import net.minecraftforge.gradle.tasks.EtagDownloadTask;
-import net.minecraftforge.gradle.tasks.ExtractConfigTask;
-import net.minecraftforge.gradle.tasks.GenSrgs;
-import net.minecraftforge.gradle.tasks.JenkinsChangelog;
-import net.minecraftforge.gradle.tasks.MergeJars;
-import net.minecraftforge.gradle.tasks.SignJar;
-import net.minecraftforge.gradle.tasks.SplitJarTask;
-import net.minecraftforge.gradle.util.FileLogListenner;
-import net.minecraftforge.gradle.util.GradleConfigurationException;
-import net.minecraftforge.gradle.util.delayed.DelayedFile;
-import net.minecraftforge.gradle.util.delayed.DelayedFileTree;
-import net.minecraftforge.gradle.util.delayed.DelayedString;
-import net.minecraftforge.gradle.util.delayed.ReplacementProvider;
-import net.minecraftforge.gradle.util.delayed.TokenReplacer;
-import net.minecraftforge.gradle.util.json.JsonFactory;
-import net.minecraftforge.gradle.util.json.fgversion.FGBuildStatus;
-import net.minecraftforge.gradle.util.json.fgversion.FGVersion;
-import net.minecraftforge.gradle.util.json.fgversion.FGVersionWrapper;
-import net.minecraftforge.gradle.util.json.version.Version;
+import static net.minecraftforge.gradle.common.Constants.*;
 public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Project>
 {
     private static final Logger LOGGER = Logging.getLogger(BasePlugin.class);
@@ -820,7 +800,6 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                     String configName = CONFIG_MC_DEPS;
                     if (lib.name.contains("java3d")
                             || lib.name.contains("paulscode")
-                            || lib.name.contains("lwjgl")
                             || lib.name.contains("twitch")
                             || lib.name.contains("jinput"))
                     {

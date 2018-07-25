@@ -30,7 +30,6 @@ import org.gradle.api.Project;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public abstract class BaseExtension
 {
@@ -248,79 +247,8 @@ public abstract class BaseExtension
         checkMappings();
     }
 
-    /**
-     * Checks that the set mappings are valid based on the channel, version, and MC version.
-     * If the mappings are invalid, this method will throw a runtime exception.
-     */
-    protected void checkMappings()
-    {
-
-        if (!Strings.isNullOrEmpty(version)
-                && (compareVersion(version, MIN_VERSION) < 0 || compareVersion(version, MAX_VERSION) > 0)
-                && !suppressVersionTest)
-        {
-                // version not supported
-                throw new GradleConfigurationException(String.format("ForgeGradle %s does not support Minecraft %s. MIN: %s, MAX: %s",
-                        forgeGradleVersion, version, MIN_VERSION, nullStringTo(MAX_VERSION, "none")));
-
-        }
-
-        // mappings or mc version are null
-        if (mappingsChannel == null || Strings.isNullOrEmpty(version))
-            return;
-
-        // set now.
+    protected void checkMappings() {
         replacer.putReplacement(Constants.REPLACE_MCP_MCVERSION, version);
-
-        // gotta do this after setting the MC version
-        if (mappingsCustom != null)
-            return;
-
-        // check if it exists
-        Map<String, int[]> versionMap = mcpJson.get(version);
-        String channel = getMappingsChannelNoSubtype();
-        if (versionMap != null)
-        {
-            int[] channelList = versionMap.get(channel);
-            if (channelList == null)
-                throw new GradleConfigurationException("There is no such MCP mapping channel named " + channel);
-
-            // all is well with the world
-            if (searchArray(channelList, mappingsVersion))
-                return;
-        }
-
-        // if it gets here.. it wasnt found. Now we try to actually find it..
-        for (Entry<String, Map<String, int[]>> mcEntry : mcpJson.entrySet())
-        {
-            for (Entry<String, int[]> channelEntry : mcEntry.getValue().entrySet())
-            {
-                // found it!
-                if (searchArray(channelEntry.getValue(), mappingsVersion))
-                {
-                    boolean rightMc = mcEntry.getKey().equals(version);
-                    boolean rightChannel = channelEntry.getKey().equals(channel);
-
-                    // right channel, but wrong mc
-                    if (rightChannel && !rightMc)
-                    {
-                        project.getLogger().warn("This mapping '" + getMappings() + "' was designed for MC " + mcEntry.getKey() + "! Use at your own peril.");
-                        replacer.putReplacement(Constants.REPLACE_MCP_MCVERSION, mcEntry.getKey()); // set MC version
-                        return;
-                        // throw new GradleConfigurationException("This mapping '" + getMappings() + "' exists only for MC " + mcEntry.getKey() + "!");
-                    }
-
-                    // right MC , but wrong channel
-                    else if (rightMc && !rightChannel)
-                    {
-                        throw new GradleConfigurationException("This mapping '" + getMappings() + "' doesnt exist! perhaps you meant '" + channelEntry.getKey() + "_" + mappingsVersion + "'");
-                    }
-                }
-            }
-        }
-
-        // wasnt found
-        throw new GradleConfigurationException("The specified mapping '" + getMappings() + "' does not exist!");
     }
 
     @SuppressWarnings("unused")

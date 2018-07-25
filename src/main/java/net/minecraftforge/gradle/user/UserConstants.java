@@ -43,6 +43,7 @@ public class UserConstants
     public static final String TASK_SETUP_DEV         = "setupDevWorkspace";
     public static final String TASK_SETUP_DECOMP      = "setupDecompWorkspace";
 
+    public static final String TASK_ACCESS_TRANSFORM  = "accessTransform";
     public static final String TASK_DEOBF_BIN         = "deobfMcMCP";
     public static final String TASK_DEOBF             = "deobfMcSRG";
     public static final String TASK_DECOMPILE         = "decompileMc";

@@ -19,46 +19,16 @@
  */
 package net.minecraftforge.gradle.tasks;
 
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipFile;
-
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-
 import de.oceanlabs.mcp.mcinjector.LVTNaming;
 import de.oceanlabs.mcp.mcinjector.MCInjectorImpl;
 import groovy.lang.Closure;
-import net.md_5.specialsource.AccessMap;
-import net.md_5.specialsource.Jar;
-import net.md_5.specialsource.JarMapping;
-import net.md_5.specialsource.JarRemapper;
-import net.md_5.specialsource.RemapperProcessor;
+import net.md_5.specialsource.*;
 import net.md_5.specialsource.provider.JarProvider;
 import net.md_5.specialsource.provider.JointProvider;
 import net.minecraftforge.gradle.common.Constants;
@@ -67,6 +37,18 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 import net.minecraftforge.gradle.util.json.JsonFactory;
 import net.minecraftforge.gradle.util.json.MCInjectorStruct;
 import net.minecraftforge.gradle.util.json.MCInjectorStruct.InnerClass;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Optional;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.zip.ZipFile;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class DeobfuscateJar extends CachedTask
 {
@@ -176,7 +158,7 @@ public class DeobfuscateJar extends CachedTask
 
                 // TODO: add info for disabling
 
-                throw new RuntimeException("Your Access Transformers be broke!");
+                throw new RuntimeException("Your Access Transformers are broken");
             }
         }
     }
