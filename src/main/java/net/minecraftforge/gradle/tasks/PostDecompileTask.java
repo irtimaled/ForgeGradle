@@ -90,9 +90,10 @@ public class PostDecompileTask extends AbstractEditJarTask
     @Override
     public void doStuffBefore() throws Exception
     {
+    	String patchRoot = getProject().file(patchDir).getAbsolutePath();
         for (File f : getPatches())
         {
-            String name = f.getName();
+            String name = f.getAbsolutePath().substring(patchRoot.length() + 1).replace('\\', '/');
 
             int patchIndex = name.indexOf(".patch");
 
@@ -190,16 +191,14 @@ public class PostDecompileTask extends AbstractEditJarTask
                 jarOut.closeEntry();
             }
         }
-        File common = new File(file, "common/");
-        if (common.isDirectory())
+
+        for (File f : this.getProject().fileTree(info))
         {
-            for (File f : this.getProject().fileTree(common))
-            {
-                String name = f.getAbsolutePath().substring(common.getAbsolutePath().length() + 1).replace('\\', '/');
-                jarOut.putNextEntry(new ZipEntry(name));
-                jarOut.write(Resources.toByteArray(f.toURI().toURL()));
-                jarOut.closeEntry();
-            }
+        	if ("package-info-template.java".equals(f.getName())) continue;
+            String name = f.getAbsolutePath().substring(info.getAbsolutePath().length() + 1).replace('\\', '/');
+            jarOut.putNextEntry(new ZipEntry(name));
+            jarOut.write(Resources.toByteArray(f.toURI().toURL()));
+            jarOut.closeEntry();
         }
     }
 
