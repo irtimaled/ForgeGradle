@@ -31,6 +31,7 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTreeElement;
+import org.gradle.api.file.FileVisitor;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -72,13 +73,17 @@ public class ExtractConfigTask extends CachedTask implements PatternFilterable
 
         dest.mkdirs();
 
-        ExtractionVisitor visitor = new ExtractionVisitor(dest, isIncludeEmptyDirs(), patternSet.getAsSpec());
+        FileVisitor visitor = makeExtractor(dest, isIncludeEmptyDirs(), patternSet.getAsSpec());
 
         for (File source : getConfigFiles())
         {
             getLogger().debug("Extracting: " + source);
             getProject().zipTree(source).visit(visitor);
         }
+    }
+
+    protected FileVisitor makeExtractor(File outDir, boolean emptyDirs, Spec<FileTreeElement> spec) {
+    	return new ExtractionVisitor(outDir, emptyDirs, spec);
     }
 
     private void delete(File f) throws IOException

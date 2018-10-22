@@ -28,9 +28,9 @@ import org.gradle.api.specs.Spec;
 
 public class ExtractionVisitor implements FileVisitor
 {
-    private final File                  outputDir;
-    private final boolean               emptyDirs;
-    private final Spec<FileTreeElement> spec;
+    protected final File                  outputDir;
+    private final boolean                 emptyDirs;
+    protected final Spec<FileTreeElement> spec;
 
     public ExtractionVisitor(File outDir, boolean emptyDirs, Spec<FileTreeElement> spec)
     {

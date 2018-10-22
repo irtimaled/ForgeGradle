@@ -523,7 +523,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             merge.setDescription(null);
         }
 
-        ExtractConfigTask extractMcpData = makeTask(TASK_EXTRACT_MCP, ExtractConfigTask.class);
+        ExtractConfigTask extractMcpData = makeTask(TASK_EXTRACT_MCP, ExtractMcpConfigTask.class);
         {
             extractMcpData.setDestinationDir(delayedFile(DIR_MCP_DATA));
             extractMcpData.setConfig(CONFIG_MCP_DATA);
