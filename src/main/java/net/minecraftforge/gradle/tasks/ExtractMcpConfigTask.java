@@ -53,26 +53,6 @@ public class ExtractMcpConfigTask extends ExtractConfigTask {
 			File destination = new File(outputDir, details.getPath());
 	        destination.getParentFile().mkdirs();
 
-	        /*String parent = details.getRelativePath().getParent().getPathString();
-	        if (parent.isEmpty()) {
-	        	//Anything in the root of the zip, currently only the config.json
-	        	//We don't need this so we'll just skip it all together
-	        	System.out.println("Skipping config.json");
-	        	return;
-	        } else if (parent.startsWith("config")) {
-	        	if ("config".equals(parent)) {
-	        		//Config folder contains all the actual mappings, we'll have to play about with some of them
-	        		System.out.println("Config " + details.getRelativePath());	        		
-	        	} else {
-	        		//Anything within the inject folder
-	        		System.out.println("Inject " + details.getRelativePath());
-	        	}
-	        } else if (parent.startsWith("patches/")) {
-	        	//Anything with the patches folder, will only need destination moving
-	        	System.out.println("Patch " + details.getRelativePath());
-	        } else {
-	        	throw new IllegalStateException("Unexpected parent " + parent);
-	        }*/
 	        switch (details.getRelativePath().toString()) {
 		        case "config.json":
 		        	//We don't need the config.json, but at some point we will need an astyle.cfg (which doesn't come in the zip)
