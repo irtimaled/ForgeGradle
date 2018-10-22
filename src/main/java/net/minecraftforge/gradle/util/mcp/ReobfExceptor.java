@@ -36,7 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +57,6 @@ import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-
-import de.oceanlabs.mcp.mcinjector.StringUtil;
 
 public class ReobfExceptor
 {
@@ -321,7 +318,7 @@ public class ReobfExceptor
                 m.appendTail(b);
                 split[4] = b.toString();
             }
-            out.append(StringUtil.joinString(Arrays.asList(split), " ")).append('\n');
+            out.append(String.join(" ", split)).append('\n');
             return true;
         }
 
