@@ -288,11 +288,12 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         final DeobfuscateJar deobfBin = makeTask(TASK_DEOBF_BIN, DeobfuscateJar.class);
         {
             deobfBin.setSrg(delayedFile(SRG_NOTCH_TO_MCP));
-            deobfBin.setExceptorJson(delayedFile(MCP_DATA_EXC_JSON));
             deobfBin.setExceptorCfg(delayedFile(EXC_MCP));
+            deobfBin.setAccessCfg(delayedFile(MCP_DATA_ACCESS));
+            deobfBin.setConstructorCfg(delayedFile(MCP_DATA_CONSTRUCTORS));
+            deobfBin.setExceptionsCfg(delayedFile(MCP_DATA_EXCEPTIONS));
             deobfBin.setFieldCsv(delayedFile(CSV_FIELD));
             deobfBin.setMethodCsv(delayedFile(CSV_METHOD));
-            deobfBin.setApplyMarkers(false);
             deobfBin.setInJar(transformedJar);
             deobfBin.setOutJar(chooseDeobfOutput(globalPattern, localPattern, "Bin", ""));
             deobfBin.dependsOn(transformAccess);
@@ -307,9 +308,10 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         final DeobfuscateJar deobfDecomp = makeTask(TASK_DEOBF, DeobfuscateJar.class);
         {
             deobfDecomp.setSrg(delayedFile(SRG_NOTCH_TO_SRG));
-            deobfDecomp.setExceptorJson(delayedFile(MCP_DATA_EXC_JSON));
             deobfDecomp.setExceptorCfg(delayedFile(EXC_SRG));
-            deobfDecomp.setApplyMarkers(true);
+            deobfDecomp.setAccessCfg(delayedFile(MCP_DATA_ACCESS));
+            deobfDecomp.setConstructorCfg(delayedFile(MCP_DATA_CONSTRUCTORS));
+            deobfDecomp.setExceptionsCfg(delayedFile(MCP_DATA_EXCEPTIONS));
             deobfDecomp.setInJar(transformedJar);
             deobfDecomp.setOutJar(deobfDecompJar);
             deobfDecomp.dependsOn(inputTask, TASK_GENERATE_SRGS, TASK_EXTRACT_DEP_ATS, TASK_DD_COMPILE, TASK_DD_PROVIDED); // todo grab correct task to depend on
