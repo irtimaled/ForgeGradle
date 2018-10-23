@@ -182,26 +182,23 @@ public class PostDecompileTask extends AbstractEditJarTask
     protected void postWrite(JarOutputStream jarOut) throws IOException
     {
         File file = ((DelayedFile)this.injectDir).call();
-        File info = new File(file, "package-info-template.java");
-        if (info.exists())
-        {
-            String template = Resources.toString(info.toURI().toURL(), Charsets.UTF_8);
-            getLogger().debug("Adding package-infos");
-            for (String pkg : this.seenPackages)
-            {
-                jarOut.putNextEntry(new ZipEntry(pkg + "/package-info.java"));
-                jarOut.write(template.replaceAll("\\{PACKAGE\\}", pkg.replace('/', '.')).getBytes());
-                jarOut.closeEntry();
-            }
-        }
 
-        for (File f : this.getProject().fileTree(info))
-        {
-        	if ("package-info-template.java".equals(f.getName())) continue;
-            String name = f.getAbsolutePath().substring(info.getAbsolutePath().length() + 1).replace('\\', '/');
-            jarOut.putNextEntry(new ZipEntry(name));
-            jarOut.write(Resources.toByteArray(f.toURI().toURL()));
-            jarOut.closeEntry();
+        for (File f : getProject().fileTree(file)) {
+        	if ("package-info-template.java".equals(f.getName())) {
+        		String template = Files.toString(f, Charsets.UTF_8);
+                getLogger().debug("Adding package-infos");
+
+                for (String pkg : seenPackages) {
+                    jarOut.putNextEntry(new ZipEntry(pkg + "/package-info.java"));
+                    jarOut.write(template.replaceAll("\\{PACKAGE\\}", pkg.replace('/', '.')).getBytes());
+                    jarOut.closeEntry();
+                }
+        	} else {
+	            String name = f.getAbsolutePath().substring(file.getAbsolutePath().length() + 1).replace('\\', '/');
+	            jarOut.putNextEntry(new ZipEntry(name));
+	            jarOut.write(Files.asByteSource(f).read());
+	            jarOut.closeEntry();
+        	}
         }
     }
 

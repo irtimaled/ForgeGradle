@@ -76,7 +76,7 @@ dependencies {
     compile 'com.github.tony19:named-regexp:0.2.3' // 1.7 Named regexp features
     compile 'net.minecraftforge:forgeflower:1.5.380.22' // Fernflower Forge edition
 
-    shade 'net.md-5:SpecialSource:1.8.2' // deobf and reobf
+    shade 'net.md-5:SpecialSource:1.8.3' // deobf and reobf
 
     // because curse
     compile 'org.apache.httpcomponents:httpclient:4.3.3'
@@ -214,7 +214,7 @@ pluginBundle {
 uploadArchives {
     repositories.mavenDeployer {
 
-        dependsOn 'build'
+        dependsOn 'jar'
 
         if (project.hasProperty('forgeMavenPass'))
         {
