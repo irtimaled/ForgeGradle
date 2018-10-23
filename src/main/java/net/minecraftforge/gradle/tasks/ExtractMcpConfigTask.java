@@ -127,7 +127,7 @@ public class ExtractMcpConfigTask extends ExtractConfigTask {
 						}
 
 						Pattern classFinder = Pattern.compile("L([^;]+);");
-						for (Entry<String, String> entry : fields.entrySet()) {
+						for (Entry<String, String> entry : methods.entrySet()) {
 							String obf = entry.getKey();
 							String desc = obf.substring(obf.lastIndexOf(' ') + 1);
 
@@ -150,7 +150,7 @@ public class ExtractMcpConfigTask extends ExtractConfigTask {
 							out.newLine();
 						}
 						for (Entry<String, String> entry : methods.entrySet()) {
-							out.write("MD " + entry.getKey() + ' ' + entry.getValue());
+							out.write("MD: " + entry.getKey() + ' ' + entry.getValue());
 							out.newLine();
 						}
 					} catch (IOException e) {

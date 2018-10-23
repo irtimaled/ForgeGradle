@@ -169,7 +169,7 @@ public class Constants
     };
 
     // mcp data constants
-    public static final String MCP_DATA_SRG          = DIR_MCP_DATA + "/joined.srg";
+    public static final String MCP_DATA_SRG          = DIR_MCP_DATA + "/config/joined.srg";
     public static final String MCP_DATA_STYLE        = DIR_MCP_DATA + "/astyle.cfg";
     public static final String MCP_DATA_ACCESS       = DIR_MCP_DATA + "/config/access.txt";
     public static final String MCP_DATA_EXCEPTIONS   = DIR_MCP_DATA + "/config/exceptions.txt";
