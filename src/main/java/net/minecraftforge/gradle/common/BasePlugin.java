@@ -539,7 +539,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         GenSrgs genSrgs = makeTask(TASK_GENERATE_SRGS, GenSrgs.class);
         {
             genSrgs.setInSrg(delayedFile(MCP_DATA_SRG));
-            genSrgs.setInExc(delayedFile(MCP_DATA_EXC));
+            genSrgs.setInConstructors(delayedFile(MCP_DATA_CONSTRUCTORS));
             genSrgs.setInStatics(delayedFile(MCP_DATA_STATICS));
             genSrgs.setMethodsCsv(delayedFile(CSV_METHOD));
             genSrgs.setFieldsCsv(delayedFile(CSV_FIELD));

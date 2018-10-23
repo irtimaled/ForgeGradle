@@ -57,7 +57,7 @@ public class GenSrgs extends CachedTask
 {
     //@formatter:off
     @InputFile private DelayedFile inSrg;
-    @InputFile private DelayedFile inExc;
+    @InputFile private DelayedFile inConstructors;
     @InputFile private DelayedFile inStatics;
     @InputFile private DelayedFile methodsCsv;
     @InputFile private DelayedFile fieldsCsv;
@@ -288,7 +288,7 @@ public class GenSrgs extends CachedTask
         BufferedWriter mcpOut = Files.newWriter(getMcpExc(), Charsets.UTF_8);
 
         // read and write existing lines
-        List<String> excLines = Files.readLines(getInExc(), Charsets.UTF_8);
+        List<String> excLines = Files.readLines(getInConstructors(), Charsets.UTF_8);
         Map<String, String> tmp = Maps.newHashMap();
         for (String line : excLines)
         {
@@ -297,7 +297,17 @@ public class GenSrgs extends CachedTask
             else
             {
                 String[] pts = line.split("=");
-                tmp.put(pts[0], pts[1]);
+
+                String prefix = "p_i" + pts[0] + '_';
+                List<String> ret = Lists.newArrayList();
+
+                int idx = 1;
+                for (Type arg : Type.getArgumentTypes(pts[2])) {
+                    ret.add(prefix + idx + '_');
+                    idx += arg.getSize();
+                }
+
+                tmp.put(pts[1] + ".<init>" + pts[2], '|' + String.join(",", ret));
             }
         }
 
@@ -433,14 +443,14 @@ public class GenSrgs extends CachedTask
         this.inSrg = inSrg;
     }
 
-    public File getInExc()
+    public File getInConstructors()
     {
-        return inExc.call();
+        return inConstructors.call();
     }
 
-    public void setInExc(DelayedFile inSrg)
+    public void setInConstructors(DelayedFile inConstructors)
     {
-        this.inExc = inSrg;
+        this.inConstructors = inConstructors;
     }
 
     public File getInStatics()
