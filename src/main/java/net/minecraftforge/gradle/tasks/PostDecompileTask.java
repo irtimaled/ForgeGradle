@@ -127,15 +127,18 @@ public class PostDecompileTask extends AbstractEditJarTask
         file = FFPatcher.processFile(file);
 
         // patch the file
-        Collection<File> patchFiles = patchesMap.get(name.replace('/', '.'));
+        Collection<File> patchFiles = patchesMap.get(name);
         if (!patchFiles.isEmpty())
         {
-            getLogger().debug("applying MCP patches");
+            getLogger().debug("applying " + patchFiles.size() + " MCP patch(es)");
             ContextProvider provider = new ContextProvider(file);
             ContextualPatch patch = findPatch(patchFiles, provider,getLogger());
             if (patch != null) {
                 patchErrors.add(new PatchAttempt(patch.patch(false),file));
                 file = provider.getAsString();
+            } else {
+            	//This shouldn't ever happen
+            	throw new IllegalStateException("Cannot find patches " + patchFiles + " for " + name);
             }
         }
 
@@ -258,7 +261,7 @@ public class PostDecompileTask extends AbstractEditJarTask
     {
         ContextualPatch patch = null;
         File lastFile = null;
-        boolean success = true;
+        boolean success = false;
         for (File f : files)
         {
             logger.debug("trying MCP patch " + f.getName());

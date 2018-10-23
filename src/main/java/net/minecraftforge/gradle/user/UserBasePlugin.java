@@ -314,7 +314,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             deobfDecomp.setExceptionsCfg(delayedFile(MCP_DATA_EXCEPTIONS));
             deobfDecomp.setInJar(transformedJar);
             deobfDecomp.setOutJar(deobfDecompJar);
-            deobfDecomp.dependsOn(inputTask, TASK_GENERATE_SRGS, TASK_EXTRACT_DEP_ATS, TASK_DD_COMPILE, TASK_DD_PROVIDED); // todo grab correct task to depend on
+            deobfDecomp.dependsOn(transformAccess);
         }
 
         final ApplyFernFlowerTask decompile = makeTask(TASK_DECOMPILE, ApplyFernFlowerTask.class);

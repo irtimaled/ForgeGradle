@@ -185,6 +185,7 @@ public final class ContextualPatch
 
     private void init() throws IOException
     {
+    	unreadPatchLine();
         if (patchString != null)
         {
             //Just read the string as is, without trying to read the magic/encoding as the string shuldn't need encoding!
