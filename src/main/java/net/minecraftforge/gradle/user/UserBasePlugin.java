@@ -113,10 +113,10 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         task.setGroup("ForgeGradle");
         task.dependsOn(TASK_DD_PROVIDED, TASK_DD_COMPILE);
 
-//        task = makeTask(TASK_SETUP_DECOMP, DefaultTask.class);
-//        task.setDescription("DevWorkspace + the deobfuscated Minecraft source linked as a source jar.");
-//        task.setGroup("ForgeGradle");
-//        task.dependsOn(TASK_DD_PROVIDED, TASK_DD_COMPILE);
+        task = makeTask(TASK_SETUP_DECOMP, DefaultTask.class);
+        task.setDescription("DevWorkspace + the deobfuscated Minecraft source linked as a source jar.");
+        task.setGroup("ForgeGradle");
+        task.dependsOn(TASK_DD_PROVIDED, TASK_DD_COMPILE);
 
         // create configs
         project.getConfigurations().maybeCreate(CONFIG_MC);
@@ -400,7 +400,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         // add setup dependencies
         project.getTasks().getByName(TASK_SETUP_CI).dependsOn(deobfBin);
         project.getTasks().getByName(TASK_SETUP_DEV).dependsOn(deobfBin, makeStart);
-//        project.getTasks().getByName(TASK_SETUP_DECOMP).dependsOn(recompile, makeStart);
+        project.getTasks().getByName(TASK_SETUP_DECOMP).dependsOn(recompile, makeStart);
 
         // configure MC compiling. This AfterEvaluate section should happen after the one made in
         // also configure the dummy task dependencies
