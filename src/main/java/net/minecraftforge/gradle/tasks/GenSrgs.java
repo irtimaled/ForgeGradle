@@ -22,6 +22,7 @@ package net.minecraftforge.gradle.tasks;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -296,7 +297,10 @@ public class GenSrgs extends CachedTask
                 tmp.put(line, null);
             else
             {
-                String[] pts = line.split("=");
+                String[] pts = line.split(" ");
+
+                if (pts.length != 3)
+                	throw new IllegalStateException("Unexpected line length: " + Arrays.toString(pts) + " from " + line);
 
                 String prefix = "p_i" + pts[0] + '_';
                 List<String> ret = Lists.newArrayList();
