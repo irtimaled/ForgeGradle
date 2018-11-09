@@ -169,15 +169,16 @@ public class Constants
     };
 
     // mcp data constants
-    public static final String MCP_DATA_SRG       = DIR_MCP_DATA + "/joined.srg";
-    public static final String MCP_DATA_EXC       = DIR_MCP_DATA + "/joined.exc";
-    public static final String MCP_DATA_EXC_JSON  = DIR_MCP_DATA + "/exceptor.json";
-    public static final String MCP_DATA_STYLE     = DIR_MCP_DATA + "/astyle.cfg";
-    public static final String MCP_DATA_STATICS   = DIR_MCP_DATA + "/static_methods.txt";
-    public static final String MCP_PATCHES_CLIENT = DIR_MCP_DATA + "/patches/minecraft_ff";
-    public static final String MCP_PATCHES_SERVER = DIR_MCP_DATA + "/patches/minecraft_server_ff";
-    public static final String MCP_PATCHES_MERGED = DIR_MCP_DATA + "/patches/minecraft_merged_ff";
-    public static final String MCP_INJECT         = DIR_MCP_DATA + "/patches/inject";
+    public static final String MCP_DATA_SRG          = DIR_MCP_DATA + "/config/joined.srg";
+    public static final String MCP_DATA_STYLE        = DIR_MCP_DATA + "/astyle.cfg";
+    public static final String MCP_DATA_ACCESS       = DIR_MCP_DATA + "/config/access.txt";
+    public static final String MCP_DATA_EXCEPTIONS   = DIR_MCP_DATA + "/config/exceptions.txt";
+    public static final String MCP_DATA_CONSTRUCTORS = DIR_MCP_DATA + "/config/constructors.txt";
+    public static final String MCP_DATA_STATICS      = DIR_MCP_DATA + "/config/static_methods.txt";
+    public static final String MCP_PATCHES_CLIENT    = DIR_MCP_DATA + "/patches/client";
+    public static final String MCP_PATCHES_SERVER    = DIR_MCP_DATA + "/patches/server";
+    public static final String MCP_PATCHES_MERGED    = DIR_MCP_DATA + "/patches/joined";
+    public static final String MCP_INJECT            = DIR_MCP_DATA + "/config/inject";
 
     // generated off of MCP data constants
     public static final String CSV_METHOD       = DIR_MCP_MAPPINGS + "/methods.csv";

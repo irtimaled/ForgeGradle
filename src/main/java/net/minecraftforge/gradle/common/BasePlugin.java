@@ -223,7 +223,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 //        ApplyFernFlowerTask ffTask = ((ApplyFernFlowerTask) project.getTasks().getByName("decompileJar"));
 //        ffTask.setClasspath(javaConv.getSourceSets().getByName("main").getCompileClasspath());
 
-        // http://files.minecraftforge.net/maven/de/oceanlabs/mcp/mcp/1.7.10/mcp-1.7.10-srg.zip
+        // http://files.minecraftforge.net/maven/de/oceanlabs/mcp/mcp_config/1.13.1/mcp_config-1.13.1.zip
         project.getDependencies().add(CONFIG_MAPPINGS, ImmutableMap.of(
                 "group", "de.oceanlabs.mcp",
                 "name", delayedString("mcp_" + REPLACE_MCP_CHANNEL).call(),
@@ -233,9 +233,8 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
         project.getDependencies().add(CONFIG_MCP_DATA, ImmutableMap.of(
                 "group", "de.oceanlabs.mcp",
-                "name", "mcp",
+                "name", "mcp_config",
                 "version", delayedString(REPLACE_MC_VERSION).call(),
-                "classifier", "srg",
                 "ext", "zip"
                 ));
 
@@ -523,7 +522,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             merge.setDescription(null);
         }
 
-        ExtractConfigTask extractMcpData = makeTask(TASK_EXTRACT_MCP, ExtractConfigTask.class);
+        ExtractConfigTask extractMcpData = makeTask(TASK_EXTRACT_MCP, ExtractMcpConfigTask.class);
         {
             extractMcpData.setDestinationDir(delayedFile(DIR_MCP_DATA));
             extractMcpData.setConfig(CONFIG_MCP_DATA);
@@ -540,7 +539,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         GenSrgs genSrgs = makeTask(TASK_GENERATE_SRGS, GenSrgs.class);
         {
             genSrgs.setInSrg(delayedFile(MCP_DATA_SRG));
-            genSrgs.setInExc(delayedFile(MCP_DATA_EXC));
+            genSrgs.setInConstructors(delayedFile(MCP_DATA_CONSTRUCTORS));
             genSrgs.setInStatics(delayedFile(MCP_DATA_STATICS));
             genSrgs.setMethodsCsv(delayedFile(CSV_METHOD));
             genSrgs.setFieldsCsv(delayedFile(CSV_FIELD));

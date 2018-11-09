@@ -74,9 +74,9 @@ dependencies {
     compile 'com.nothome:javaxdelta:2.0.1' // GDIFF implementation for BinPatches
     compile 'com.google.code.gson:gson:2.2.4' // Used instead of Argo for buuilding changelog.
     compile 'com.github.tony19:named-regexp:0.2.3' // 1.7 Named regexp features
-    compile 'net.minecraftforge:forgeflower:1.0.342-SNAPSHOT' // Fernflower Forge edition
+    compile 'net.minecraftforge:forgeflower:1.5.380.22' // Fernflower Forge edition
 
-    shade 'net.md-5:SpecialSource:1.8.2' // deobf and reobf
+    shade 'net.md-5:SpecialSource:1.8.3' // deobf and reobf
 
     // because curse
     compile 'org.apache.httpcomponents:httpclient:4.3.3'
@@ -84,7 +84,7 @@ dependencies {
 
     // mcp stuff
     shade 'de.oceanlabs.mcp:RetroGuard:3.6.6'
-    shade('de.oceanlabs.mcp:mcinjector:3.4-SNAPSHOT'){
+    shade('de.oceanlabs.mcp:mcinjector:3.7.3'){
      exclude group: 'org.ow2.asm', module: 'asm-debug-all'
     }
     shade('net.minecraftforge.srg2source:Srg2Source:4.0-SNAPSHOT'){
@@ -94,7 +94,7 @@ dependencies {
 
     //Stuff used in the GradleStart classes
     compileOnly 'com.mojang:authlib:1.5.16'
-    compileOnly('net.minecraft:launchwrapper:1.11'){
+    compileOnly('net.minecraft:launchwrapper:1.12'){
      exclude group: 'org.ow2.asm', module: 'asm-debug-all'
     }
 
@@ -214,7 +214,7 @@ pluginBundle {
 uploadArchives {
     repositories.mavenDeployer {
 
-        dependsOn 'build'
+        dependsOn 'jar'
 
         if (project.hasProperty('forgeMavenPass'))
         {

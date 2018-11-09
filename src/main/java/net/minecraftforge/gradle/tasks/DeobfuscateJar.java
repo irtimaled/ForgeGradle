@@ -25,30 +25,32 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import de.oceanlabs.mcp.mcinjector.LVTNaming;
-import de.oceanlabs.mcp.mcinjector.MCInjectorImpl;
+
+import de.oceanlabs.mcp.mcinjector.lvt.LVTNaming;
+import de.oceanlabs.mcp.mcinjector.MCInjector;
+
 import groovy.lang.Closure;
+
 import net.md_5.specialsource.*;
 import net.md_5.specialsource.provider.JarProvider;
 import net.md_5.specialsource.provider.JointProvider;
+
 import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
-import net.minecraftforge.gradle.util.json.JsonFactory;
-import net.minecraftforge.gradle.util.json.MCInjectorStruct;
-import net.minecraftforge.gradle.util.json.MCInjectorStruct.InnerClass;
+
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.*;
-import org.gradle.api.tasks.Optional;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.zip.ZipFile;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static org.objectweb.asm.Opcodes.*;
 
 public class DeobfuscateJar extends CachedTask
 {
@@ -69,10 +71,13 @@ public class DeobfuscateJar extends CachedTask
     private Object            exceptorCfg;
 
     @InputFile
-    private Object            exceptorJson;
-
-    @Input
-    private boolean           applyMarkers  = false;
+    private Object            access;
+    
+    @InputFile
+    private Object            constructors;
+    
+    @InputFile
+    private Object            exceptions;
 
     @Input
     private boolean           failOnAtError = true;
@@ -163,158 +168,22 @@ public class DeobfuscateJar extends CachedTask
         }
     }
 
-    private int fixAccess(int access, String target)
-    {
-        int ret = access & ~7;
-        int t = 0;
-
-        if (target.startsWith("public"))
-            t = ACC_PUBLIC;
-        else if (target.startsWith("private"))
-            t = ACC_PRIVATE;
-        else if (target.startsWith("protected"))
-            t = ACC_PROTECTED;
-
-        switch (access & 7)
-            {
-                case ACC_PRIVATE:
-                    ret |= t;
-                    break;
-                case 0:
-                    ret |= (t != ACC_PRIVATE ? t : 0);
-                    break;
-                case ACC_PROTECTED:
-                    ret |= (t != ACC_PRIVATE && t != 0 ? t : ACC_PROTECTED);
-                    break;
-                case ACC_PUBLIC:
-                    ret |= ACC_PUBLIC;
-                    break;
-            }
-
-        if (target.endsWith("-f"))
-            ret &= ~ACC_FINAL;
-        else if (target.endsWith("+f"))
-            ret |= ACC_FINAL;
-        return ret;
-    }
-
     public void applyExceptor(File inJar, File outJar, File config, File log, Set<File> ats) throws IOException
     {
-        String json = null;
-        File getJson = getExceptorJson();
-        if (getJson != null)
-        {
-            final Map<String, MCInjectorStruct> struct = JsonFactory.loadMCIJson(getJson);
-            for (File at : ats)
-            {
-                getLogger().info("loading AT: " + at.getCanonicalPath());
-
-                Files.readLines(at, Charset.defaultCharset(), new LineProcessor<Object>()
-                {
-                    @Override
-                    public boolean processLine(String line) throws IOException
-                    {
-                        if (line.indexOf('#') != -1)
-                            line = line.substring(0, line.indexOf('#'));
-                        line = line.trim().replace('.', '/');
-                        if (line.isEmpty())
-                            return true;
-
-                        String[] s = line.split(" ");
-                        if (s.length == 2 && s[1].indexOf('$') > 0)
-                        {
-                            String parent = s[1].substring(0, s[1].indexOf('$'));
-                            for (MCInjectorStruct cls : new MCInjectorStruct[] { struct.get(parent), struct.get(s[1]) })
-                            {
-                                if (cls != null && cls.innerClasses != null)
-                                {
-                                    for (InnerClass inner : cls.innerClasses)
-                                    {
-                                        if (inner.inner_class.equals(s[1]))
-                                        {
-                                            int access = fixAccess(inner.getAccess(), s[0]);
-                                            inner.access = (access == 0 ? null : Integer.toHexString(access));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        return true;
-                    }
-
-                    @Override
-                    public Object getResult()
-                    {
-                        return null;
-                    }
-                });
-            }
-
-            // Remove unknown classes from configuration
-            removeUnknownClasses(inJar, struct);
-
-            File jsonTmp = new File(this.getTemporaryDir(), "transformed.json");
-            json = jsonTmp.getCanonicalPath();
-            Files.write(JsonFactory.GSON.toJson(struct).getBytes(), jsonTmp);
-        }
-
         getLogger().debug("INPUT: " + inJar);
         getLogger().debug("OUTPUT: " + outJar);
         getLogger().debug("CONFIG: " + config);
-        getLogger().debug("JSON: " + json);
+        getLogger().debug("ACCESS: " + getAccessCfg());
+        getLogger().debug("CONSTRUCTOR: " + getConstructorCfg());
+        getLogger().debug("EXCEPTION: " + getExceptionsCfg());
         getLogger().debug("LOG: " + log);
         getLogger().debug("PARAMS: true");
 
-        MCInjectorImpl.process(inJar.getCanonicalPath(),
-                outJar.getCanonicalPath(),
-                config.getCanonicalPath(),
-                log.getCanonicalPath(),
-                null,
-                0,
-                json,
-                isApplyMarkers(),
-                true,
-                LVTNaming.LVT
-                );
-    }
-
-    private void removeUnknownClasses(File inJar, Map<String, MCInjectorStruct> config) throws IOException
-    {
-        try (ZipFile zip = new ZipFile(inJar))
-        {
-            Iterator<Map.Entry<String, MCInjectorStruct>> entries = config.entrySet().iterator();
-            while (entries.hasNext())
-            {
-                Map.Entry<String, MCInjectorStruct> entry = entries.next();
-                String className = entry.getKey();
-
-                // Verify the configuration contains only classes we actually have
-                if (zip.getEntry(className + ".class") == null)
-                {
-                    getLogger().info("Removing unknown class {}", className);
-                    entries.remove();
-                    continue;
-                }
-
-                MCInjectorStruct struct = entry.getValue();
-
-                // Verify the inner classes in the configuration actually exist in our deobfuscated JAR file
-                if (struct.innerClasses != null)
-                {
-                    Iterator<InnerClass> innerClasses = struct.innerClasses.iterator();
-                    while (innerClasses.hasNext())
-                    {
-                        InnerClass innerClass = innerClasses.next();
-                        if (zip.getEntry(innerClass.inner_class + ".class") == null)
-                        {
-                            getLogger().info("Removing unknown inner class {} from {}", innerClass.inner_class, className);
-                            innerClasses.remove();
-                        }
-                    }
-                }
-            }
-        }
+        new MCInjector(inJar.toPath(), outJar.toPath()).log(log.toPath())
+				        .access(getAccessCfg().toPath())
+				        .constructors(getConstructorCfg().toPath())
+				        .exceptions(getExceptionsCfg().toPath())
+				        .lvt(LVTNaming.LVT).process();
     }
 
     public File getExceptorCfg()
@@ -327,27 +196,28 @@ public class DeobfuscateJar extends CachedTask
         this.exceptorCfg = exceptorCfg;
     }
 
-    public File getExceptorJson()
-    {
-        if (exceptorJson == null)
-            return null;
-        else
-            return getProject().file(exceptorJson);
+    public File getAccessCfg() {
+    	return getProject().file(access);
     }
 
-    public void setExceptorJson(Object exceptorJson)
-    {
-        this.exceptorJson = exceptorJson;
+    public void setAccessCfg(Object accessCfg) {
+    	access = accessCfg;
     }
 
-    public boolean isApplyMarkers()
-    {
-        return applyMarkers;
+    public File getConstructorCfg() {
+    	return getProject().file(constructors);
     }
 
-    public void setApplyMarkers(boolean applyMarkers)
-    {
-        this.applyMarkers = applyMarkers;
+    public void setConstructorCfg(Object constructorCfg) {
+    	constructors = constructorCfg;
+    }
+
+    public File getExceptionsCfg() {
+    	return getProject().file(exceptions);
+    }
+
+    public void setExceptionsCfg(Object exceptionCfg) {
+    	exceptions = exceptionCfg;
     }
 
     public boolean isFailOnAtError()

@@ -112,8 +112,9 @@ public class PatcherPlugin extends BasePlugin<PatcherExtension>
             deobfJar.setOutJar(delayedFile(JAR_DEOBF));
             deobfJar.setSrg(delayedFile(SRG_NOTCH_TO_SRG));
             deobfJar.setExceptorCfg(delayedFile(EXC_SRG));
-            deobfJar.setExceptorJson(delayedFile(MCP_DATA_EXC_JSON));
-            deobfJar.setApplyMarkers(true);
+            deobfJar.setAccessCfg(delayedFile(MCP_DATA_ACCESS));
+            deobfJar.setConstructorCfg(delayedFile(MCP_DATA_CONSTRUCTORS));
+            deobfJar.setExceptionsCfg(delayedFile(MCP_DATA_EXCEPTIONS));
             deobfJar.setDoesCache(false);
             // access transformers are added afterEvaluate
             deobfJar.dependsOn(TASK_MERGE_JARS, TASK_GENERATE_SRGS);
