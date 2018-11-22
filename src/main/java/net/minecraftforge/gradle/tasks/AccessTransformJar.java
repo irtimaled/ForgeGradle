@@ -88,6 +88,9 @@ public class AccessTransformJar extends CachedTask {
                 out.closeEntry();
             }
         }
+
+        //Make sure there aren't any more transformations that failed to find their classes
+        transformations.ensureClear();
     }
 
     private static byte[] readStream(InputStream inputStream) throws IOException {

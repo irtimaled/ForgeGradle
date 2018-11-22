@@ -41,4 +41,9 @@ public class AccessLevel {
 
         return new AccessLevel(Visibility.valueOf(string), isFinal);
     }
+
+    @Override
+    public String toString() {
+    	return "Access<" + visibility + (isFinal ? '+' : '-') + "F>"; 
+    }
 }

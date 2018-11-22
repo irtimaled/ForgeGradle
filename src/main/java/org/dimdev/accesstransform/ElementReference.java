@@ -57,4 +57,9 @@ public class ElementReference {
     public int hashCode() {
         return Objects.hash(kind, owner, name, desc);
     }
+
+    @Override
+    public String toString() {
+    	return "Reference<" + (kind == Kind.CLASS ? name : owner + '#' + name + desc) + '>';
+    }
 }
