@@ -37,16 +37,22 @@ public class AccessTransformJar extends CachedTask {
         AccessTransformationSet transformations = new AccessTransformationSet();
         for (File file : getAts()) {
             if (file.getName().endsWith(".jar")) {
-                JarFile jar = new JarFile(file);
-                ZipEntry entry = jar.getEntry("access_transformations.at");
-                if (entry != null) {
-                    try (Scanner scanner = new Scanner(jar.getInputStream(entry))) {
-                        while (scanner.hasNextLine()) {
-                            transformations.addMinimumAccessLevel(scanner.nextLine());
+            	try (JarFile jar = new JarFile(file)) {
+            		ZipEntry entry = jar.getEntry("access_transformations.at");
+
+                    if (entry != null) {
+                    	getLogger().info("Found transformer in " + file);
+
+                        try (Scanner scanner = new Scanner(jar.getInputStream(entry))) {
+                            while (scanner.hasNextLine()) {
+                                transformations.addMinimumAccessLevel(scanner.nextLine());
+                            }
                         }
                     }
-                }
+            	}
             } else {
+            	getLogger().info("Found transformer in " + file);
+
                 try (Scanner scanner = new Scanner(file)) {
                     while (scanner.hasNextLine()) {
                         transformations.addMinimumAccessLevel(scanner.nextLine());
