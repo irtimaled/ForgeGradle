@@ -223,7 +223,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 //        ApplyFernFlowerTask ffTask = ((ApplyFernFlowerTask) project.getTasks().getByName("decompileJar"));
 //        ffTask.setClasspath(javaConv.getSourceSets().getByName("main").getCompileClasspath());
 
-        // http://files.minecraftforge.net/maven/de/oceanlabs/mcp/mcp_config/1.13.1/mcp_config-1.13.1.zip
+        // https://files.minecraftforge.net/maven/de/oceanlabs/mcp/mcp_config/1.13.1/mcp_config-1.13.1.zip
         project.getDependencies().add(CONFIG_MAPPINGS, ImmutableMap.of(
                 "group", "de.oceanlabs.mcp",
                 "name", delayedString("mcp_" + REPLACE_MCP_CHANNEL).call(),
