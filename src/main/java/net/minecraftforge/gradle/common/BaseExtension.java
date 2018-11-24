@@ -249,6 +249,11 @@ public abstract class BaseExtension
     }
 
     protected void checkMappings() {
+    	// mappings or mc version are null
+        if (mappingsChannel == null || Strings.isNullOrEmpty(version))
+            return;
+
+        // set now.
         replacer.putReplacement(Constants.REPLACE_MCP_MCVERSION, version);
 
         // gotta do this after setting the MC version
