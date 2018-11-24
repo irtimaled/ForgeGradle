@@ -53,16 +53,19 @@ public class AccessTransformationSet {
     		case CLASS: {
     			Transformation transform = transformations.computeIfAbsent(elementReference.name, Transformation::new);
     			transform.access = AccessLevel.union(transform.access, accessLevel);
+				break;
     		}
 
     		case METHOD: {
     			Transformation transform = transformations.computeIfAbsent(elementReference.owner, Transformation::new);
     			transform.methods.put(elementReference, AccessLevel.union(transform.methods.get(elementReference), accessLevel));
+				break;
     		}
 
     		case FIELD: {
     			Transformation transform = transformations.computeIfAbsent(elementReference.owner, Transformation::new);
     			transform.fields.put(elementReference, AccessLevel.union(transform.fields.get(elementReference), accessLevel));
+				break;
     		}	
     	}
     }
