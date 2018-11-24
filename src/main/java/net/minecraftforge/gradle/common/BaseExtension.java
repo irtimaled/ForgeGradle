@@ -30,6 +30,7 @@ import org.gradle.api.Project;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class BaseExtension
 {
@@ -249,6 +250,55 @@ public abstract class BaseExtension
 
     protected void checkMappings() {
         replacer.putReplacement(Constants.REPLACE_MCP_MCVERSION, version);
+
+        // gotta do this after setting the MC version
+        if (mappingsCustom != null)
+            return;
+
+        // check if it exists
+        Map<String, int[]> versionMap = mcpJson.get(version);
+        String channel = getMappingsChannelNoSubtype();
+        if (versionMap != null)
+        {
+            int[] channelList = versionMap.get(channel);
+            if (channelList == null)
+                throw new GradleConfigurationException("There is no such MCP mapping channel named " + channel);
+
+            // all is well with the world
+            if (searchArray(channelList, mappingsVersion))
+                return;
+        }
+
+        // if it gets here.. it wasnt found. Now we try to actually find it..
+        for (Entry<String, Map<String, int[]>> mcEntry : mcpJson.entrySet())
+        {
+            for (Entry<String, int[]> channelEntry : mcEntry.getValue().entrySet())
+            {
+                // found it!
+                if (searchArray(channelEntry.getValue(), mappingsVersion))
+                {
+                    boolean rightMc = mcEntry.getKey().equals(version);
+                    boolean rightChannel = channelEntry.getKey().equals(channel);
+
+                    // right channel, but wrong mc
+                    if (rightChannel && !rightMc)
+                    {
+                        project.getLogger().warn("Fuzzing selected mapping '" + getMappings() + "' to designed MC version " + mcEntry.getKey());
+                        replacer.putReplacement(Constants.REPLACE_MCP_MCVERSION, mcEntry.getKey()); // set MC version
+                        return;
+                    }
+
+                    // right MC , but wrong channel
+                    else if (rightMc && !rightChannel)
+                    {
+                        throw new GradleConfigurationException("Selected mapping '" + getMappings() + "' doesnt exist! Perhaps you meant '" + channelEntry.getKey() + "_" + mappingsVersion + "'?");
+                    }
+                }
+            }
+        }
+
+        // wasnt found
+        throw new GradleConfigurationException("The specified mapping '" + getMappings() + "' does not exist!");
     }
 
     @SuppressWarnings("unused")
