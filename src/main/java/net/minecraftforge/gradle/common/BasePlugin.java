@@ -232,9 +232,9 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 ));
 
         project.getDependencies().add(CONFIG_MCP_DATA, ImmutableMap.of(
-                "group", "de.oceanlabs.mcp",
-                "name", "mcp_config",
-                "version", delayedString(REPLACE_MC_VERSION).call(),
+                "group", "com.github.Irtimaled",
+                "name", "MCPConfig",
+                "version", "jitpack-SNAPSHOT",
                 "ext", "zip"
                 ));
 
