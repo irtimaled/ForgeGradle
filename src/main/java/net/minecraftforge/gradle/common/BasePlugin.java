@@ -234,7 +234,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         project.getDependencies().add(CONFIG_MCP_DATA, ImmutableMap.of(
                 "group", "com.github.Irtimaled",
                 "name", "MCPConfig",
-                "version", "jitpack-SNAPSHOT",
+                "version", "1.14-SNAPSHOT",
                 "ext", "zip"
                 ));
 
