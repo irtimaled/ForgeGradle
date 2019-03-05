@@ -210,6 +210,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             ConfigurableFileCollection col = project.files(getStartDir());
             col.builtBy(TASK_MAKE_START);
             project.getDependencies().add(CONFIG_START, col);
+            project.getDependencies().add(CONFIG_START, "net.minecraft:launchwrapper:1.12");
         }
         // TODO: do some GradleStart stuff based on the MC version?
 
