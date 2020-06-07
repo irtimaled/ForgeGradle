@@ -37,27 +37,21 @@ import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.maven.Conf2ScopeMappingContainer;
 import org.gradle.api.artifacts.result.*;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.MavenPluginConvention;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.GroovySourceSet;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.ScalaSourceSet;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Jar;
-import org.gradle.api.tasks.compile.GroovyCompile;
-import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
-import org.gradle.api.tasks.scala.ScalaCompile;
 import org.gradle.jvm.JvmLibrary;
 import org.gradle.language.base.artifact.SourcesArtifact;
 import org.gradle.plugins.ide.eclipse.model.EclipseModel;
 import org.gradle.plugins.ide.idea.model.IdeaModel;
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet;
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,7 +66,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,7 +128,6 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         configureCompilation();
 
         // Quality of life stuff for the users
-        createSourceCopyTasks();
         doDevTimeDeobf();
         doDepAtExtraction();
         configureRetromapping();
@@ -174,16 +166,6 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
 
         // map configurations (only if the maven or maven publish plugins exist)
         mapConfigurations();
-
-        // configure source replacement.
-        project.getTasks().withType(TaskSourceCopy.class, new Action<TaskSourceCopy>() {
-            @Override
-            public void execute(TaskSourceCopy t)
-            {
-                t.replace(getExtension().getReplacements());
-                t.include(getExtension().getIncludes());
-            }
-        });
 
         // add access transformers to deobf tasks
         addAtsToDeobf();
@@ -525,116 +507,6 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         // set the compile target
         javaConv.setSourceCompatibility("1.8");
         javaConv.setTargetCompatibility("1.8");
-    }
-
-    /**
-     * Creates and partially configures the source replacement tasks. The actual replacements must be configured afterEvaluate.
-     */
-    protected void createSourceCopyTasks()
-    {
-        JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
-
-        Action<SourceSet> action = new Action<SourceSet>() {
-            @Override
-            public void execute(SourceSet set) {
-
-                TaskSourceCopy task;
-
-                String capName = set.getName().substring(0, 1).toUpperCase() + set.getName().substring(1);
-                String taskPrefix = "source"+capName;
-                File dirRoot = new File(project.getBuildDir(), "sources/"+set.getName());
-
-                // java
-                {
-                    File dir = new File(dirRoot, "java");
-
-                    task = makeTask(taskPrefix+"Java", TaskSourceCopy.class);
-                    task.setSource(set.getJava());
-                    task.setOutput(dir);
-
-                    // must get replacements from extension afterEvaluate()
-
-                    JavaCompile compile = (JavaCompile) project.getTasks().getByName(set.getCompileJavaTaskName());
-                    compile.dependsOn(task);
-                    compile.setSource(dir);
-                }
-
-                // scala
-                if (project.getPlugins().hasPlugin("scala"))
-                {
-                    ScalaSourceSet langSet = (ScalaSourceSet) new DslObject(set).getConvention().getPlugins().get("scala");
-                    File dir = new File(dirRoot, "scala");
-
-                    task = makeTask(taskPrefix+"Scala", TaskSourceCopy.class);
-                    task.setSource(langSet.getScala());
-                    task.setOutput(dir);
-
-                    // must get replacements from extension afterEValuate()
-
-                    ScalaCompile compile = (ScalaCompile) project.getTasks().getByName(set.getCompileTaskName("scala"));
-                    compile.dependsOn(task);
-                    compile.setSource(dir);
-                }
-
-                // groovy
-                if (project.getPlugins().hasPlugin("groovy"))
-                {
-                    GroovySourceSet langSet = (GroovySourceSet) new DslObject(set).getConvention().getPlugins().get("groovy");
-                    File dir = new File(dirRoot, "groovy");
-
-                    task = makeTask(taskPrefix+"Groovy", TaskSourceCopy.class);
-                    task.setSource(langSet.getGroovy());
-                    task.setOutput(dir);
-
-                    // must get replacements from extension afterEValuate()
-
-                    GroovyCompile compile = (GroovyCompile) project.getTasks().getByName(set.getCompileTaskName("groovy"));
-                    compile.dependsOn(task);
-                    compile.setSource(dir);
-                }
-
-                // kotlin
-                if (project.getPlugins().hasPlugin("kotlin"))
-                {
-                    KotlinSourceSet langSet = (KotlinSourceSet) new DslObject(set).getConvention().getPlugins().get("kotlin");
-                    File dir = new File(dirRoot, "kotlin");
-
-                    task = makeTask(taskPrefix+"Kotlin", TaskSourceCopy.class);
-                    task.setSource(langSet.getKotlin());
-                    task.setOutput(dir);
-
-                    // must get replacements from extension afterEValuate()
-
-                    KotlinCompile compile = (KotlinCompile) project.getTasks().getByName(set.getCompileTaskName("kotlin"));
-                    compile.dependsOn(task);
-                    compile.setSource(dir);
-                    Path dirPath = dir.toPath();
-
-                    // Apparently the Kotlin plugin doesn't respect setSource in any way, so this is required
-                    compile.include(new Closure<Boolean>(UserBasePlugin.class)
-                    {
-                        private static final long serialVersionUID = -6765183773807992625L;
-
-                        @Override
-                        public Boolean call(Object o)
-                        {
-                            if (o instanceof FileTreeElement) {
-                                return ((FileTreeElement) o).getFile().toPath().startsWith(dirPath);
-                            }
-                            return super.call();
-                        }
-                    });
-                }
-            }
-        };
-
-        // for existing sourceSets
-        for (SourceSet set : javaConv.getSourceSets())
-        {
-            action.execute(set);
-        }
-        // for user-defined ones
-        javaConv.getSourceSets().whenObjectAdded(action);
     }
 
     protected final void doDevTimeDeobf()
