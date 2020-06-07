@@ -17,8 +17,8 @@ apply plugin: 'maven'
 apply plugin: "com.gradle.plugin-publish"
 //apply plugin: 'license'
 
-group = 'org.dimdev'
-version = '2.4-SNAPSHOT'
+group = 'com.irtimaled'
+version = '2.5-SNAPSHOT'
 
 archivesBaseName = 'ForgeGradle'
 targetCompatibility = '1.8'
